@@ -1,0 +1,41 @@
+# Mirror Savannah's nongnu release tree, dl.sv.gnu.org/releases/, into a Cloudflare R2
+# bucket twice a day, from a list diff: Savannah's listing against the state the last run
+# left in the bucket. The toolbox, which starts a run, contains it in an image, resolves its
+# secrets, renders and checks it, and reports it, and the rsync engine, which moves the
+# bytes, draws the directory pages, reads them back and orders the pipeline, are
+# katoptra/lib's, included below at v2 and flattened into this file. What is here is the
+# mirror's identity and nothing else. R2 is reached through the AWS CLI, configured by the
+# three AWS_* variables op.env resolves from 1Password, which cross into the image by name.
+version: '3'
+
+vars:
+  SOURCE: rsync://dl.sv.gnu.org/releases/     # Savannah itself: it offers no secondary, and its mirror page names this module
+  HOST: nongnu.katoptra.org                    # a fork changes this line and the address in PAGE_FOOT
+  BUCKET: nongnu                               # bucket name; objects sit at its root under Savannah's own paths
+  CEILING_GB: 120                              # refuse to run past this many decimal GB upstream; 80 GB in September 2026
+  LIST_FLOOR: 45000                            # a listing under this many lines is a truncated one; the tree is ~51,250 files
+  INDEX: '{{.HOST}}.directory.index.html'     # the page drawn in every directory; no upstream path can carry the name
+  # The line every directory page closes on. GNU's mirror guidelines allow short,
+  # explanatory text and no link but a bug-reporting one: an address that takes mail.
+  PAGE_FOOT: 'A mirror of https://download.savannah.nongnu.org/releases/, updated twice a day. Sizes in bytes, times as upstream lists them. Report a problem to <a href="mailto:nongnu@katoptra.org">nongnu@katoptra.org</a>.'
+  CANARY: 00_MIRRORS.html                      # 17 plain http:// links, which the zone's HTML rewriters would alter
+
+env:
+  AWS_CONFIG_FILE: '{{.ROOT_DIR}}/aws.config'
+
+# Two includes, one namespace. report-engine is both the toolbox's no-op and the engine's,
+# so the toolbox include excludes it. MAX_BATCHES and BATCH_GB are the engine's inline
+# defaults and RECONCILE the toolbox's, so a run sets them: task sync -- MAX_BATCHES=8
+# RECONCILE=true.
+includes:
+  toolbox:
+    taskfile: https://raw.githubusercontent.com/katoptra/lib/v2/toolbox.yml
+    flatten: true
+    excludes: [report-engine]
+    vars:
+      NAME: nongnu
+      DESC: a twice-daily mirror of {{.SOURCE}} at https://{{.HOST}}/
+      IMAGE: ghcr.io/katoptra/toolbox:rsync-v2
+  rsync:
+    taskfile: https://raw.githubusercontent.com/katoptra/lib/v2/engines/rsync.yml
+    flatten: true

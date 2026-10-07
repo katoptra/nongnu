@@ -1,0 +1,6 @@
+name: check
+on: {pull_request: {}}
+permissions: {contents: read}
+jobs:
+  check:
+    uses: katoptra/lib/.github/workflows/check.yml@3854982b72617790be2b8ed0fb73c22e87b8a42e # v2.3.0
