@@ -13,9 +13,10 @@ contains only the root vars and the two includes, and each verb is lib's.
 
 ## Constraints
 
-- **Where a change goes.** `Taskfile.yml` has no verbs. Make all changes to verbs in lib's
-  rsync engine. Then each rsync mirror gets them. An example is a change to the movement of
-  bytes, to the pages or to the checks of `smoke`. The includes have no `excludes:`.
+- **Where a change goes.** `Taskfile.yml` has no verbs. Make all changes to verbs in lib: in
+  the toolbox or in the rsync engine. Then each mirror that includes that file gets the
+  change. An example is a change to the movement of bytes, to the pages or to the checks of
+  `smoke`. The includes have no `excludes:`.
 - **Root vars.** Root vars hold only the values of this mirror. Do not put an engine default
   in a root var, because then the command line cannot set it
   ([lib README, Rules a mirror keeps](https://github.com/katoptra/lib#rules-a-mirror-keeps)).
