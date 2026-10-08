@@ -70,6 +70,9 @@ What this mirror sets, in [`Taskfile.yml`](Taskfile.yml):
 - **The canary.** `CANARY` is `00_MIRRORS.html`, whose 17 plain `http://` links any of
   Cloudflare's HTML rewriters would alter. After every run the engine reads it through the
   domain as a Perl client and compares it byte for byte with the bucket's copy.
+- **Freshness.** `FRESH_KEY` is `00_TIME.txt`, where Savannah writes its clock. After every
+  run the engine reads it through the domain and fails the run once it is a day old, before
+  GNU's monitor calls the mirror old at 28 hours.
 
 Everything else, from the list diff and the batching to the state file and the daily
 reconcile, is documented once in [lib's README](https://github.com/katoptra/lib#the-rsync-engine).
@@ -158,6 +161,8 @@ scheduler that stopped.
   deletion list. Re-run; if it persists, look at Savannah.
 - **The canary failed.** The domain served bytes the bucket does not hold, or refused a
   Perl client: a zone rule is missing or was widened. The bucket is intact.
+- **The clock is a day old.** `00_TIME.txt` stopped moving upstream: Savannah's release
+  area is not updating. Nothing here to change; check `dl.sv.gnu.org`.
 - **A `.tar.gz` came back with a `Content-Encoding`.** Clients would unpack it in flight.
   Look at the AWS CLI version in lib's lock.
 - **The run did not start.** Check the scheduler, then `gh workflow view sync.yml` for a
