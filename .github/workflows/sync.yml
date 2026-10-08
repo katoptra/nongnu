@@ -8,8 +8,8 @@ on:
         default: ''
 permissions:
   contents: read
-  # lib's sync.yml dispatches the next run of the chain. A workflow that a job uses cannot
-  # increase this permission.
+  # The called workflow uses this permission to start the next run of a chain. A called
+  # workflow cannot increase this permission.
   actions: write
 concurrency: {group: sync, cancel-in-progress: false}
 jobs:

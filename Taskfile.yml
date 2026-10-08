@@ -1,48 +1,49 @@
-# This file keeps a mirror of the nongnu release tree of Savannah, dl.sv.gnu.org/releases/,
-# in a Cloudflare R2 bucket. A run occurs twice a day. Each run compares a listing of
-# Savannah with the state that the previous run put in the bucket.
+# This mirror keeps a copy of Savannah's nongnu release tree, dl.sv.gnu.org/releases/, in a
+# Cloudflare R2 bucket. Twice a day, a run compares the listing of Savannah with the state
+# that the last run put in the bucket (a list diff).
 #
-# The toolbox and the rsync engine are from katoptra/lib. This file includes them at v2,
-# below the vars, with `flatten: true`. Thus, their verbs are also verbs of this file.
-# lib's README gives the verbs and the vars that each one supplies.
+# The toolbox and the rsync engine are from katoptra/lib. Its README shows the items that
+# each one supplies. This file includes them below the vars, at v2, with `flatten: true`.
 #
-# The other items in this file are for this mirror only:
-#   - SOURCE, HOST and BUCKET
-#   - two limits: CEILING_GB and LIST_FLOOR
-#   - the directory pages: INDEX and PAGE_FOOT
-#   - the files that the smoke and fresh verbs read through the domain: CANARY and
-#     FRESH_KEY
-#   - NAME and DESC, which this file gives to the toolbox.
+# The values in this file are for this mirror only:
+#   - SOURCE, HOST and BUCKET identify the mirror.
+#   - CEILING_GB and LIST_FLOOR are the limits for a run.
+#   - INDEX and PAGE_FOOT are for the directory pages.
+#   - CANARY and FRESH_KEY are for the checks at the end of each run. The engine also sends
+#     the FRESH_KEY file to the bucket last.
+#   - NAME and DESC are for the menu.
 #
-# The secrets are the names in op.env. The toolbox gets their values from the 1Password
-# vault, and it gives them to the image by name.
+# The secrets are the names in op.env. The toolbox gets their values from the vault in
+# 1Password. It gives each value to the image with its name, not on a command line.
 version: '3'
 
 vars:
-  # The source is Savannah, because it has no secondary mirror. Its mirror page gives this
-  # module.
+  # SOURCE is Savannah, because Savannah supplies no secondary mirror. Its mirror page gives
+  # this module.
   SOURCE: rsync://dl.sv.gnu.org/releases/
-  HOST: nongnu.katoptra.org   # In a fork, change this line and the address in PAGE_FOOT.
-  # This value is the bucket name. The objects are at the bucket root, with the same paths
-  # as on Savannah.
+  HOST: nongnu.katoptra.org  # A fork changes this line and the address in PAGE_FOOT.
+  # BUCKET is the name of the bucket. The objects are at its root, and their keys are
+  # Savannah's paths.
   BUCKET: nongnu
-  # If upstream is larger than this number of GB (10^9 bytes), the split verb stops the run
-  # with an error. Upstream was 80 GB in September 2026.
+  # If upstream has more than this number of decimal GB, the run stops with an error.
+  # Upstream had approximately 80 GB in September 2026.
   CEILING_GB: 120
-  # If a listing has less than this number of lines, it is not a full listing. The tree has
-  # approximately 51,250 files.
+  # A listing must have more lines than this value, or it is a truncated listing. The tree
+  # has approximately 51,250 files.
   LIST_FLOOR: 45000
-  # The directory pages use this key suffix. This suffix must agree with the Transform Rule
-  # of the zone. If upstream has a file with this name, the bucket keeps the page.
+  # INDEX is the key suffix of the directory pages. The Transform Rule of the zone uses only
+  # this name. If an upstream file has this name, the bucket keeps the page, not the file.
   INDEX: '{{.HOST}}.directory.index.html'
-  # This value is the last line of each directory page. The mirror guidelines of GNU let a
-  # page have short text that gives information. The only link that they let a page have is
-  # a link for bug reports, to an email address. That address must receive email.
+  # PAGE_FOOT is the last line of each directory page. In GNU's mirror guidelines, text
+  # must be short and "strictly explanatory". The only link that is permitted is a link for
+  # bug reports. That link is an email address, which must receive mail.
   PAGE_FOOT: 'A mirror of https://download.savannah.nongnu.org/releases/, updated twice a day. Sizes in bytes, times as upstream lists them. Report a problem to <a href="mailto:nongnu@katoptra.org">nongnu@katoptra.org</a>.'
-  # This file has 17 http:// links, which the HTML rewriters of the zone can change.
+  # CANARY is a file with 17 http:// links. If the zone uses an HTML rewriter, the rewriter
+  # can change these links.
   CANARY: 00_MIRRORS.html
-  # Savannah writes the time of its clock to this file, as Unix time. If this time is more
-  # than 24 hours before the check of the fresh verb, that verb stops the run with an error.
+  # FRESH_KEY is the file with Savannah's clock, in Unix time. If that time is more than
+  # 24 h before the check, the run stops with an error. The engine also sends this file to
+  # the bucket last.
   FRESH_KEY: 00_TIME.txt
 
 includes:
