@@ -39,8 +39,8 @@ does the same. To verify a file with the key of its project, use
 `gpg --verify <file>.sig <file>`.
 
 Freshness: Savannah writes its clock to `00_TIME.txt` at the root. The mirror copies this
-file. The engine uploads it after all the other files of the tree, in an upload that
-contains only this file. This command shows the clock in the copy that the mirror serves:
+file. The engine uploads it last, after all the other files of the tree. It uses one more
+command for this file. This command shows the clock in the copy that the mirror serves:
 
 ```sh
 curl -s https://nongnu.katoptra.org/00_TIME.txt
@@ -67,21 +67,27 @@ flowchart LR
 - **The identity.** `SOURCE` is `rsync://dl.sv.gnu.org/releases/`, the module that the
   mirror page of Savannah gives. `HOST` and `BUCKET` are the domain and the bucket.
 - **The limits.** If upstream is more than 120 GB (`CEILING_GB`), the run stops before it
-  moves a file. If a listing has less than 45,000 lines (`LIST_FLOOR`), the run also stops.
-  Such a short listing is not full, and the engine must not delete files because of it.
+  moves a file. If a listing does not have more than 45,000 lines (`LIST_FLOOR`), the run
+  also stops. Such a short listing is not full, and the engine must not delete files
+  because of it.
 - **Directory pages.** `INDEX` sets the engine to make a page for each directory.
   `PAGE_FOOT` is the last line of each page. This line identifies the mirror and tells how
   frequently the mirror gets an update. It also gives an address for problem reports.
 - **The canary.** `CANARY` is `00_MIRRORS.html`. This file has 17 `http://` links, and each
   HTML rewriter of Cloudflare changes such links.
 - **Freshness.** `FRESH_KEY` is `00_TIME.txt`, the file in which Savannah writes its clock.
-  If the time in it is more than 24 hours before the run, the engine stops the run. GNU's
-  monitor has a limit of 28 hours. Thus, the run stops before GNU's monitor finds the
-  problem.
+  If the time in it is more than 24 hours before the `fresh` check, the engine stops the
+  run. GNU's monitor has a limit of 28 hours. Thus, the run stops before GNU's monitor finds
+  the problem.
 
 [lib's README](https://github.com/katoptra/lib#the-rsync-engine) tells how the engine uses
-each of these values. It also has the only description of all the other parts. Examples
-are the list diff, the batches, the state file and the daily reconcile.
+each of these values. It also has the only description of all the other parts, for
+example:
+
+- The list diff
+- The batches
+- The state file
+- The daily reconcile.
 
 ## Want your own?
 
@@ -149,8 +155,8 @@ set these rules one time, out of the pipeline. The pipeline does not change them
 
 The first run finds an empty bucket. It uses the full tree as the delta and does four
 batches. Then it starts the next run, and the chain continues until the full delta is in
-the bucket. The first fill is approximately 80 GB in five or six runs. After the first
-fill, each run moves only the delta, usually a small number of files.
+the bucket. The chain puts approximately 80 GB in the bucket in five or six runs. After
+these runs, each run moves only the delta, usually a small number of files.
 
 This repository does not start runs. To start runs at set times, use one of these two
 methods:
@@ -159,8 +165,8 @@ methods:
 - Dispatch the workflow from an external scheduler. This mirror uses this method.
 
 The time of the run is not important for the reconcile. In a reconcile, a run compares the
-bucket with the state. A run does a reconcile if it is 24 hours or more since a run did the
-last reconcile.
+bucket with the state. A run does a reconcile if it is 23.5 hours or more since a run did
+the last reconcile.
 
 ## Operating it
 
@@ -190,16 +196,16 @@ that can stop a run, the cause and the procedure. These items are for this mirro
 
 - **`split` stopped the run.** The upstream tree is more than 120 GB. The mirror gets no
   update until you increase `CEILING_GB`. This also increases the storage cost.
-- **`list` stopped the run.** The listing had less than 45,000 lines. Start the run again.
-  If it stops again, examine Savannah.
+- **`list` stopped the run.** The listing did not have more than 45,000 lines. Start the
+  run again. If it stops again, examine Savannah.
 - **The canary check stopped the run.** Compare the zone with the three rules in step 4.
 - **`fresh` stopped the run.** Savannah did not change `00_TIME.txt` for 24 hours. Thus,
   Savannah does not update its release area. Do not change this repository. Examine
   `dl.sv.gnu.org`.
 - **The run did not start.** This repository does not start runs. Examine the scheduler
   first ([katoptra/dispatch](https://github.com/katoptra/dispatch#when-something-goes-wrong)).
-  Then use `gh workflow list --all` to find if a person disabled the workflow. The state of
-  that workflow is then `disabled_manually`. Until you find the cause, start each run with
+  Then use `gh workflow list --all`. For the sync workflow, it shows `active`, or
+  `disabled_manually` if a person disabled it. Until you find the cause, start each run with
   `gh workflow run sync.yml`.
 
 ## Reference

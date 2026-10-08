@@ -7,15 +7,16 @@ The README of [katoptra/lib](https://github.com/katoptra/lib) is the manual for 
 parts that more than one mirror uses. This file gives the rules that each change must obey.
 
 Nothing in this repository starts a run. An external scheduler dispatches `sync.yml` at
-03:42 and 15:42 UTC. A run does `reconcile` if it is 24 hours or more since a run did the
-last reconcile. This can be the run at 03:42 or the run at 15:42. `Taskfile.yml` contains
-only the root vars and the two includes, and each verb is lib's.
+03:42 and 15:42 UTC. A run does `reconcile` if it is 23.5 hours or more since a run did
+the last reconcile. This can be the run at 03:42 or the run at 15:42. `Taskfile.yml`
+contains only the root vars and the two includes, and each verb is lib's.
 
 ## Constraints
 
-- **Where a change goes.** This repository has no verbs. Change the movement of bytes, the
-  pages and the checks of `smoke` only in lib's rsync engine. Then each rsync mirror gets
-  the change. The includes have no `excludes:`.
+- **Where a change goes.** Make a change here only to this mirror's own verbs. This mirror
+  has no verbs of its own. Make every other change in lib's rsync engine. Every rsync mirror
+  then gets it. Examples are a change to the movement of bytes, to the pages or to the
+  checks of `smoke`. The includes have no `excludes:`.
 - **Root vars.** The root vars contain only the values of this mirror, and they do not give
   an engine default again
   ([lib README, Rules a mirror keeps](https://github.com/katoptra/lib#rules-a-mirror-keeps)).
@@ -69,8 +70,9 @@ only the root vars and the two includes, and each verb is lib's.
 - `task run -- task list` gets a listing of upstream with no credentials. It is the one
   check of upstream without credentials. `.run/upstream.txt` then has approximately 51,000
   lines. Of these lines, 73 have a space, and one is `00_TIME.txt`.
-- `task plan` does the read-only part of a run with the live bucket: `clock`, `list`,
-  `state`, `diff` and `split`. It uses the secrets from the vault.
-- The verbs of the engine, the pages and the read-back checks are lib's:
-  `cd ../lib/examples/rsync && task run -- task offline`.
-- Freshness: `curl -s https://nongnu.katoptra.org/00_TIME.txt`.
+- `task plan` does the read-only part of a run with the bucket of the mirror: `clock`,
+  `list`, `state`, `diff` and `split`. It uses the secrets from the vault.
+- The verbs of the engine, the pages and the read-back checks are lib's. To do a test of
+  them, use `cd ../lib/examples/rsync && task run -- task offline`.
+- To read the clock of the mirror (freshness), use
+  `curl -s https://nongnu.katoptra.org/00_TIME.txt`.
