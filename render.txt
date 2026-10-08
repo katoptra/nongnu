@@ -23,7 +23,7 @@ echo "due: RECONCILE=$r RECONCILE_HOURS=$h, last reconcile $ago: $(test -f /work
 task: [list] rm -f /work/.run/publish.txt /work/.run/labeled.txt /work/.run/orphans.txt /work/.run/unlanded.txt /work/.run/fresh.txt
 task: [list] mkdir -p /work/.run /work/staging
 task: [retry] for i in 1 2 3 4 5; do
-  rc=0; ( rsync --timeout=300 --contimeout=60 --no-h -rL --list-only rsync://dl.sv.gnu.org/releases/ > /work/.run/listing.txt ) || rc=$?   # subshell so CMD's exit cannot end the loop; || so Task's errexit cannot
+  rc=0; ( rsync --timeout=300 --contimeout=60 --no-h -rL --list-only rsync://dl.sv.gnu.org/releases/ > /work/.run/listing.txt ) || rc=$?   # subshell: an exit in CMD cannot stop the loop. ||: the errexit of Task cannot stop it.
   case $rc in 0|23|24) exit 0;; 5|10|12|30|35) ;; *) exit $rc;; esac
   test $i -lt 5 || break
   s=$((15 * 2 ** i + RANDOM % (2 * 15 + 1))); echo "rsync exit $rc, retry $i in ${s}s" >&2; sleep $s
@@ -76,7 +76,7 @@ task: [split] awk -F'\t' -v OFS='\t' -v CAP=$((4 * 1000000000)) -v DIR=/work/.ru
 task: [prepare] mkdir -p /work/.run/tl
 task: [prepare] printf '%s\n' tlpkg/texlive.tlpdb.xz tlpkg/texlive.tlpdb.sha512 tlpkg/texlive.tlpdb.sha512.asc tlpkg/gpg/pubring.gpg > /work/.run/tl/files.txt
 task: [retry] for i in 1 2 3 4 5; do
-  rc=0; ( rsync --timeout=300 --contimeout=60 --no-h -Lt --files-from=/work/.run/tl/files.txt rsync://dl.sv.gnu.org/releases// /work/.run/tl/ ) || rc=$?   # subshell so CMD's exit cannot end the loop; || so Task's errexit cannot
+  rc=0; ( rsync --timeout=300 --contimeout=60 --no-h -Lt --files-from=/work/.run/tl/files.txt rsync://dl.sv.gnu.org/releases// /work/.run/tl/ ) || rc=$?   # subshell: an exit in CMD cannot stop the loop. ||: the errexit of Task cannot stop it.
   case $rc in 0|23|24) exit 0;; 5|10|12|30|35) ;; *) exit $rc;; esac
   test $i -lt 5 || break
   s=$((15 * 2 ** i + RANDOM % (2 * 15 + 1))); echo "rsync exit $rc, retry $i in ${s}s" >&2; sleep $s
@@ -87,7 +87,7 @@ task: [prepare] cd /work/.run/tl/tlpkg && shasum -a 512 -c texlive.tlpdb.sha512 
 task: [fetch] find /work/staging -mindepth 1 -delete
 task: [fetch] cut -f1  > /work/.run/files.txt
 task: [retry] for i in 1 2 3 4 5; do
-  rc=0; ( rsync --timeout=300 --contimeout=60 --no-h -Lt --files-from=/work/.run/files.txt --ignore-missing-args rsync://dl.sv.gnu.org/releases/ /work/staging/ ) || rc=$?   # subshell so CMD's exit cannot end the loop; || so Task's errexit cannot
+  rc=0; ( rsync --timeout=300 --contimeout=60 --no-h -Lt --files-from=/work/.run/files.txt --ignore-missing-args rsync://dl.sv.gnu.org/releases/ /work/staging/ ) || rc=$?   # subshell: an exit in CMD cannot stop the loop. ||: the errexit of Task cannot stop it.
   case $rc in 0|23|24) exit 0;; 5|10|12|30|35) ;; *) exit $rc;; esac
   test $i -lt 5 || break
   s=$((15 * 2 ** i + RANDOM % (2 * 15 + 1))); echo "rsync exit $rc, retry $i in ${s}s" >&2; sleep $s
@@ -168,7 +168,7 @@ if to == b"up":
     with open(labels, "rb") as f:
         for line in f:
             path, t = line.rstrip(b"\n").split(b"\t")
-            if path != b"timestamp":
+            if path != b"00_TIME.txt":
                 n = trees.setdefault(t, str(len(trees) + 1).encode())
                 move(os.path.join(staging, path), os.path.join(up, n, path))
     for t, n in trees.items():
@@ -200,7 +200,7 @@ if to == b"up":
     with open(labels, "rb") as f:
         for line in f:
             path, t = line.rstrip(b"\n").split(b"\t")
-            if path != b"timestamp":
+            if path != b"00_TIME.txt":
                 n = trees.setdefault(t, str(len(trees) + 1).encode())
                 move(os.path.join(staging, path), os.path.join(up, n, path))
     for t, n in trees.items():
@@ -216,7 +216,7 @@ else:
     shutil.rmtree(up, ignore_errors=True)
 PY
 
-task: [publish] test ! -f /work/staging/timestamp || aws s3 cp --no-progress --cli-connect-timeout 60 --cli-read-timeout 300 --content-type "$(awk -F'\t' '$1 == "timestamp" { print $2 }' /work/.run/labels.txt)" /work/staging/timestamp s3://nongnu/timestamp | tee -a /work/.run/publish.txt
+task: [publish] test ! -f /work/staging/00_TIME.txt || aws s3 cp --no-progress --cli-connect-timeout 60 --cli-read-timeout 300 --content-type "$(awk -F'\t' '$1 == "00_TIME.txt" { print $2 }' /work/.run/labels.txt)" /work/staging/00_TIME.txt s3://nongnu/00_TIME.txt | tee -a /work/.run/publish.txt
 task: [merge] (cd /work/staging && find . -type f | sed 's|^\./||' | LC_ALL=C sort) > /work/.run/landed.txt
 task: [merge] awk -F'\t' 'NR == FNR { drop[$1] = 1; next } !($1 in drop)'  /work/.run/applied.txt | cat - <(LC_ALL=C join -t "$(printf '\t')" /work/.run/landed.txt ) | LC_ALL=C sort > /work/.run/applied.new
 task: [push] xz -T0 -c /work/.run/applied.new > /work/.run/applied.new.xz
@@ -321,7 +321,7 @@ task: [smoke] h=00_MIRRORS.html; n=$(awk -F'\t' -v k="$h" '$1 == k { print $2 }'
 task: [smoke] g=$(awk -F'\t' '$1 ~ /\.tar\.gz$/ && $2 > 0 { print $1; exit }' /work/.run/applied.txt 2>/dev/null); case "https://nongnu.katoptra.org" in http*) ;; *) g= ;; esac; if test -z "$g"; then echo "content-encoding check skipped (no non-empty .tar.gz in the state, or the URL is not http)"; else u=$(printf '%s\n' "$g" | awk 'BEGIN { for (i = 0; i < 256; i++) ord[sprintf("%c", i)] = i }
 function enc(s,  out, j, c) { out = ""; for (j = 1; j <= length(s); j++) { c = substr(s, j, 1)
     out = out ((c ~ /[A-Za-z0-9\/._~-]/) ? c : sprintf("%%%02X", ord[c])) } return out } { print $0 "\t" enc($0) }' | cut -f2) && h=$(curl -fsS --connect-timeout 15 --max-time 60 --retry 6 --retry-connrefused --retry-max-time 600 -r 0-0 -D - -o /dev/null "https://nongnu.katoptra.org/$u") && if printf '%s' "$h" | grep -qi '^content-encoding:'; then echo "$g: served with a content-encoding" >&2; exit 1; fi && echo "$g: served with no content-encoding"; fi
-task: [smoke] if test -f /work/.run/changed.txt && test "$(ls /work/.run/batch-*.txt 2>/dev/null | wc -l)" -le 4; then LC_ALL=C comm -23 /work/.run/changed.txt /work/.run/applied.txt > /work/.run/unlanded.txt; else : > /work/.run/unlanded.txt; fi; cut -f1 /work/.run/unlanded.txt | head -20 | while IFS= read -r p; do echo "::warning::listed upstream, never fetched: $p"; done
+task: [smoke] if test -f /work/.run/changed.txt && test ! -f /work/.run/chain; then LC_ALL=C comm -23 /work/.run/changed.txt /work/.run/applied.txt > /work/.run/unlanded.txt; else : > /work/.run/unlanded.txt; fi; cut -f1 /work/.run/unlanded.txt | head -20 | while IFS= read -r p; do echo "::warning::listed upstream, never fetched: $p"; done
 task: [fresh] k=00_TIME.txt; if ! awk -F'\t' -v k="$k" '$1 == k { f = 1 } END { exit !f }' /work/.run/applied.txt 2>/dev/null; then echo "freshness skipped ($k is not in the state)"; else case "24" in ''|*[!0-9]*) echo "FRESH_HOURS is a whole number" >&2; exit 1 ;; esac; u=$(printf '%s\n' "$k" | awk 'BEGIN { for (i = 0; i < 256; i++) ord[sprintf("%c", i)] = i }
 function enc(s,  out, j, c) { out = ""; for (j = 1; j <= length(s); j++) { c = substr(s, j, 1)
     out = out ((c ~ /[A-Za-z0-9\/._~-]/) ? c : sprintf("%%%02X", ord[c])) } return out } { print $0 "\t" enc($0) }' | cut -f2); t=$(curl -fsS --connect-timeout 15 --max-time 60 --retry 6 --retry-connrefused --retry-max-time 600 "https://nongnu.katoptra.org/$u" | awk '!/^#/ { for (i = 1; i <= NF; i++) {
