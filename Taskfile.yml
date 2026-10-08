@@ -19,6 +19,7 @@ vars:
   # explanatory text and no link but a bug-reporting one: an address that takes mail.
   PAGE_FOOT: 'A mirror of https://download.savannah.nongnu.org/releases/, updated twice a day. Sizes in bytes, times as upstream lists them. Report a problem to <a href="mailto:nongnu@katoptra.org">nongnu@katoptra.org</a>.'
   CANARY: 00_MIRRORS.html                      # 17 plain http:// links, which the zone's HTML rewriters would alter
+  FRESH_KEY: 00_TIME.txt                       # Savannah's clock, Unix time; a day old fails the run
 
 env:
   AWS_CONFIG_FILE: '{{.ROOT_DIR}}/aws.config'
