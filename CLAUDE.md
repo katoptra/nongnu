@@ -13,12 +13,11 @@ contains only the root vars and the two includes, and each verb is lib's.
 
 ## Constraints
 
-- **Where a change goes.** Make a change here only to this mirror's own verbs. This mirror
-  has no verbs of its own. Make every other change in lib's rsync engine. Every rsync mirror
-  then gets it. Examples are a change to the movement of bytes, to the pages or to the
-  checks of `smoke`. The includes have no `excludes:`.
-- **Root vars.** The root vars contain only the values of this mirror, and they do not give
-  an engine default again
+- **Where a change goes.** This file defines no verbs. Make all changes to verbs in lib's
+  rsync engine. Then each rsync mirror gets them. Examples are a change to the movement of
+  bytes, to the pages or to the checks of `smoke`. The includes have no `excludes:`.
+- **Root vars.** Root vars hold only the values of this mirror. Do not put an engine default
+  in a root var, because then the command line cannot set it
   ([lib README, Rules a mirror keeps](https://github.com/katoptra/lib#rules-a-mirror-keeps)).
   Do not set a lib var again. In an engine verb, the engine uses a root var, not a
   `KEY=value` from the command line. Thus, `MAX_BATCHES`, `BATCH_GB` and `RECONCILE` are
