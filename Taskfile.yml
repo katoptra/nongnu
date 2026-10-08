@@ -21,22 +21,13 @@ vars:
   CANARY: 00_MIRRORS.html                      # 17 plain http:// links, which the zone's HTML rewriters would alter
   FRESH_KEY: 00_TIME.txt                       # Savannah's clock, Unix time; a day old fails the run
 
-env:
-  AWS_CONFIG_FILE: '{{.ROOT_DIR}}/aws.config'
-
-# Two includes, one namespace. report-engine is both the toolbox's no-op and the engine's,
-# so the toolbox include excludes it. MAX_BATCHES and BATCH_GB are the engine's inline
-# defaults and RECONCILE the toolbox's, so a run sets them: task sync -- MAX_BATCHES=8
-# RECONCILE=true.
 includes:
   toolbox:
     taskfile: https://raw.githubusercontent.com/katoptra/lib/v2/toolbox.yml
     flatten: true
-    excludes: [report-engine]
     vars:
       NAME: nongnu
       DESC: a twice-daily mirror of {{.SOURCE}} at https://{{.HOST}}/
-      IMAGE: ghcr.io/katoptra/toolbox:rsync-v2
   rsync:
     taskfile: https://raw.githubusercontent.com/katoptra/lib/v2/engines/rsync.yml
     flatten: true
