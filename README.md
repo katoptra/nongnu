@@ -40,7 +40,8 @@ does the same. To verify a file with the key of its project, use
 
 Freshness: Savannah writes its clock to `00_TIME.txt` at the root. The mirror copies this
 file. The engine uploads it last, after all the other files of the tree. It uses one more
-command for this file. This command shows the clock in the copy that the mirror serves:
+command for this file. To read the clock in the copy that the mirror serves, use this
+command:
 
 ```sh
 curl -s https://nongnu.katoptra.org/00_TIME.txt
