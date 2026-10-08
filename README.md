@@ -198,8 +198,9 @@ that can stop a run, the cause and the procedure. These items are for this mirro
   `dl.sv.gnu.org`.
 - **The run did not start.** This repository does not start runs. Examine the scheduler
   first ([katoptra/dispatch](https://github.com/katoptra/dispatch#when-something-goes-wrong)).
-  Then use `gh workflow view sync.yml` to find if a person disabled the workflow. Until you
-  find the cause, start each run with `gh workflow run sync.yml`.
+  Then use `gh workflow list --all` to find if a person disabled the workflow. The state of
+  that workflow is then `disabled_manually`. Until you find the cause, start each run with
+  `gh workflow run sync.yml`.
 
 ## Reference
 
