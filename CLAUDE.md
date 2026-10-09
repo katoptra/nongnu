@@ -7,8 +7,8 @@ The README of [katoptra/lib](https://github.com/katoptra/lib) is the manual for 
 parts that more than one mirror uses. This file gives the rules that each change must obey.
 
 Nothing in this repository starts a run. An external scheduler dispatches `sync.yml` at
-03:42 and 15:42 UTC. A run does `reconcile` if it is 23.5 hours or more since a run did
-the last reconcile. This can be the run at 03:42 or the run at 15:42. `Taskfile.yml`
+07:42 and 19:42 UTC. A run does `reconcile` if it is 23.5 hours or more since a run did
+the last reconcile. This can be the run at 07:42 or the run at 19:42. `Taskfile.yml`
 contains only the root vars and the two includes, and each verb is lib's.
 
 ## Constraints
@@ -60,7 +60,7 @@ contains only the root vars and the two includes, and each verb is lib's.
 - **No `Content-Encoding`.** GNU recommends no `Content-Encoding` header. On each run,
   `smoke` reads a `.tar.gz` and makes sure that it has no `Content-Encoding`.
 - **A run failure is the only alert.** The healthchecks.io check has the cron
-  `42 3,15 * * *` UTC and a grace time of 3 hours.
+  `42 7,19 * * *` UTC and a grace time of 3 hours.
 
 ## Verifying a change
 
