@@ -74,6 +74,8 @@ flowchart LR
 - **Directory pages.** `INDEX` sets the engine to make a page for each directory.
   `PAGE_FOOT` is the last line of each page. This line identifies the mirror and tells how
   frequently the mirror gets an update. It also gives an address for problem reports.
+  `INDEX_FILES` is `index.html index.htm`. In a directory with one of these files, the URL
+  of the directory serves that file, as on Savannah.
 - **The canary.** `CANARY` is `00_MIRRORS.html`. This file has 17 `http://` links, and each
   HTML rewriter of Cloudflare changes such links.
 - **Freshness.** `FRESH_KEY` is `00_TIME.txt`, the file in which Savannah writes its clock.
@@ -130,14 +132,15 @@ A run gets four values from one vault item, `nongnu`:
 
 ### 4. The zone
 
-The zone has three Cloudflare rules. Each rule is only for the hostname of the mirror. You
-set these rules one time, out of the pipeline. The pipeline does not change them.
+The zone has three Cloudflare rules for the mirror. Each rule is only for the hostnames of
+the rsync mirrors of katoptra. You set these rules one time, out of the pipeline. The
+pipeline does not change them.
 
 | Rule | Function |
 |---|---|
 | Configuration Rule | It sets Email Obfuscation, Rocket Loader, Automatic HTTPS Rewrites and Browser Integrity Check to off. The first three change the HTML between the bucket and the client, and the tree has approximately 4,300 HTML files. The fourth sends 403 to Perl and Python clients. If one of the four is on again, the canary check stops the run. |
 | Cache Rule | Bypass. Without this rule, a client can get a previous copy of a page or of `00_TIME.txt` from the cache. |
-| Transform Rule | It changes each path with `/` at the end to `concat(http.request.uri.path, http.host, ".directory.index.html")`. This includes the root. |
+| Transform Rule | It changes each path with `/` at the end to `concat(http.request.uri.path, "katoptra.org.directory.index.html")`. This includes the root. |
 
 ### 5. Do the checks, run it, schedule it
 
