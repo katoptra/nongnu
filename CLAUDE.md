@@ -24,7 +24,7 @@ includes, and each verb is lib's.
   `KEY=value` from the command line. Thus, `MAX_BATCHES`, `BATCH_GB` and `RECONCILE` are
   not root vars.
 - **Paths are Savannah's, at the root of the bucket.** Only the mirror uses the prefix
-  `.state/` and the file name `nongnu.katoptra.org.directory.index.html`. Savannah has no
+  `.state/` and the file name `katoptra.org.directory.index.html`. Savannah has no
   path with this prefix or with this file name.
 - **GNU's mirror guidelines are applicable to each page that this host serves.** The text
   must be short, and it must only give an explanation. Images and logos are not permitted.

@@ -31,9 +31,13 @@ vars:
   # A listing must have more lines than this value, or it is a truncated listing. The tree
   # has approximately 51,250 files.
   LIST_FLOOR: 45000
-  # INDEX is the key suffix of the directory pages. The Transform Rule of the zone uses only
-  # this name. If an upstream file has this name, the bucket keeps the page, not the file.
-  INDEX: '{{.HOST}}.directory.index.html'
+  # INDEX is the key suffix of the directory pages. The rsync mirrors of katoptra use one
+  # name, and the Transform Rules of the zone use it for their hosts. If an upstream file has
+  # this name, the bucket keeps the page, not the file.
+  INDEX: katoptra.org.directory.index.html
+  # INDEX_FILES are the upstream index files, in sequence. The page key of a directory with
+  # such a file is a copy of that file. Thus, the URL of that directory serves the file.
+  INDEX_FILES: index.html index.htm
   # PAGE_FOOT is the last line of each directory page. In GNU's mirror guidelines, text
   # must be short and "strictly explanatory". The only link that is permitted is a link for
   # bug reports. That link is an email address, which must receive mail.
