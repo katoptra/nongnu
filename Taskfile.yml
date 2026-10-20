@@ -8,7 +8,7 @@
 # The values in this file are for this mirror only:
 #   - SOURCE, HOST and BUCKET identify the mirror.
 #   - CEILING_GB and LIST_FLOOR are the limits for a run.
-#   - INDEX and PAGE_FOOT are for the directory pages.
+#   - INDEX and UPSTREAM are for the directory pages.
 #   - CANARY and FRESH_KEY are for the checks at the end of each run. The engine also sends
 #     the FRESH_KEY file to the bucket last.
 #   - NAME and DESC are for the menu.
@@ -21,7 +21,7 @@ vars:
   # SOURCE is Savannah, because Savannah supplies no secondary mirror. Its mirror page gives
   # this module.
   SOURCE: rsync://dl.sv.gnu.org/releases/
-  HOST: nongnu.katoptra.org  # A fork changes this line and the address in PAGE_FOOT.
+  HOST: nongnu.katoptra.org  # A fork changes this line.
   # BUCKET is the name of the bucket. The objects are at its root, and their keys are
   # Savannah's paths.
   BUCKET: nongnu
@@ -38,10 +38,11 @@ vars:
   # INDEX_FILES are the upstream index files, in sequence. The page key of a directory with
   # such a file is a copy of that file. Thus, the URL of that directory serves the file.
   INDEX_FILES: index.html index.htm
-  # PAGE_FOOT is the last line of each directory page. In GNU's mirror guidelines, text
-  # must be short and "strictly explanatory". The only link that is permitted is a link for
-  # bug reports. That link is an email address, which must receive mail.
-  PAGE_FOOT: 'A mirror of https://download.savannah.nongnu.org/releases/, updated twice a day. Sizes in bytes, times as upstream lists them. Report a problem to <a href="mailto:nongnu@katoptra.org">nongnu@katoptra.org</a>.'
+  # UPSTREAM is the URL of this tree on Savannah. The footer of each directory page gives it
+  # as text, with the path of the directory. In GNU's mirror guidelines, text must be short
+  # and "strictly explanatory". The only link that is permitted is a link for bug reports.
+  # The engine makes that link from HOST: nongnu@katoptra.org, which must receive mail.
+  UPSTREAM: https://download.savannah.nongnu.org/releases/
   # CANARY is a file with 17 http:// links. If the zone uses an HTML rewriter, the rewriter
   # can change these links.
   CANARY: 00_MIRRORS.html
