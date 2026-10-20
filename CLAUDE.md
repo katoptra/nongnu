@@ -29,10 +29,9 @@ includes, and each verb is lib's.
 - **GNU's mirror guidelines are applicable to each page that this host serves.** The text
   must be short, and it must only give an explanation. Images and logos are not permitted.
   The only permitted link is a link for bug reports.
-- **`PAGE_FOOT` is the only text that the mirror adds.** The pages in the bucket show a
-  change to `PAGE_FOOT` only after the engine makes all the pages again. To make all the
-  pages again, run `aws s3 rm s3://nongnu/.state/indexed.txt.xz`. The next run then sends
-  approximately 12,700 PutObjects.
+- **The footer is the only text that the mirror adds.** The engine makes it from `UPSTREAM`
+  and `HOST`. Do not set `PAGE_FOOT`. A change to `UPSTREAM` or `HOST` gets to each page at
+  the next run. That run sends approximately 12,700 PutObjects.
 - **The bug-report link is `mailto:nongnu@katoptra.org`.** That address must get e-mail.
   The mail records of the zone are not in this repository. They are in the same location as
   the zone rules.

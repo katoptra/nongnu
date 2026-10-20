@@ -71,9 +71,9 @@ flowchart LR
   moves a file. If a listing does not have more than 45,000 lines (`LIST_FLOOR`), the run
   also stops. Such a short listing is not full, and the engine must not delete files
   because of it.
-- **Directory pages.** `INDEX` sets the engine to make a page for each directory.
-  `PAGE_FOOT` is the last line of each page. This line identifies the mirror and tells how
-  frequently the mirror gets an update. It also gives an address for problem reports.
+- **Directory pages.** `INDEX` sets the engine to make a page for each directory of
+  upstream, also for a directory with no file. The footer of each page gives the same
+  directory on Savannah (`UPSTREAM`) as text, and an address for problem reports.
   `INDEX_FILES` is `index.html index.htm`. In a directory with one of these files, the URL
   of the directory serves that file, as on Savannah.
 - **The canary.** `CANARY` is `00_MIRRORS.html`. This file has 17 `http://` links, and each
@@ -97,7 +97,8 @@ example:
 ### 1. Fork it
 
 1. Fork [katoptra/nongnu](https://github.com/katoptra/nongnu).
-2. Change `HOST`, `BUCKET` and the address in `PAGE_FOOT` to your values.
+2. Change `HOST` and `BUCKET` to your values. The engine makes the e-mail address for
+   problem reports from `HOST`. If that address does not receive e-mail, set `CONTACT`.
 3. Keep `SOURCE`. Savannah has no secondary mirror.
 
 ### 2. Storage
