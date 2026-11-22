@@ -227,4 +227,6 @@ stops a run if the listing decreases by more than approximately 6,000 files.
 
 Pull requests are welcome.
 
-MIT licensed. Built by [Josh Vaughen](https://ijosh.com).
+Copyright (C) 2026 Josh Vaughen. This repository is free software under the
+[GNU General Public License](LICENSE), version 3 or (at your option) any later version.
+Built by [Josh Vaughen](https://ijosh.com).
